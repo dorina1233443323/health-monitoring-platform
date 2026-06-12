@@ -46,3 +46,10 @@ export const measurementsTable = sqliteTable('measurements', {
   measuredAt: text('measured_at').notNull(),
   createdAt: text('created_at').notNull(),
 }) 
+
+export const sessionTable = sqliteTable('session', {
+  id: text('id').primaryKey().notNull(),
+  userId: integer('user_id').notNull().references(() => userTable.id),
+  expiresAt: text('expires_at').notNull(),
+  createdAt: text('created_at').notNull(),
+})

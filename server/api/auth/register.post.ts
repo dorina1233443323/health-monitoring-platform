@@ -1,5 +1,5 @@
 import {hash} from 'bcrypt-ts'
-import { userTable } from '../../db/schema'
+import { userTable } from '~~/server/db/schema'
 
 export default eventHandler(async (event) => {
     const { email, password, first_name, last_name } = await readBody(event);
@@ -7,12 +7,12 @@ export default eventHandler(async (event) => {
         throw createError({ statusCode:400 ,message:"All the data must be provided in data body." })
     }
 
-    const hashedPassword = hash(password, 8);
+    const hashedPassword = await hash(password, 8);
 
     const db = useDrizzle()
     const insertResult = await db.insert(userTable).values({
         email,
-        password: await hash(password, 8),
+        password: hashedPassword,
         firstName: first_name,
         lastName: last_name,
         role: 'patient',
