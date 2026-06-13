@@ -3,6 +3,8 @@ import Navbar from './components/general/Navbar.vue'
 </script>
 
 <template>
-  <Navbar />
-  <NuxtPage />
+  <div class="min-h-screen bg-neutral-950">
+    <Navbar />
+    <NuxtPage />
+  </div>
 </template>

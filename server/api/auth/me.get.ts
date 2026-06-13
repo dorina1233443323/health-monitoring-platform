@@ -6,6 +6,7 @@ export default eventHandler(async (event) => {
   if (!sessionId) {
     throw createError({ statusCode: 401, message: "User not authenticated" });
   }
+
   const db = useDrizzle();
   const rows = await db
     .select({
@@ -16,9 +17,19 @@ export default eventHandler(async (event) => {
     .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId))
     .limit(1);
-  const row = rows[0];
 
+  const row = rows[0];
   if (!row || new Date(row.session.expiresAt) < new Date()) {
+    deleteCookie(event, "session_id");
     throw createError({ statusCode: 401, message: "Session invalid." });
   }
+
+  const user = row.user;
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+  };
 });

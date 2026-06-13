@@ -8,15 +8,29 @@ export default eventHandler(async (event) => {
   }
   const db = useDrizzle();
   const rows = await db
-    .select()
+    .select({
+      session: sessionTable,
+      user: userTable,
+    })
     .from(sessionTable)
+    .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId))
     .limit(1);
+
   const row = rows[0];
   if (!row) {
+    deleteCookie(event, "session_id");
     throw createError({ statusCode: 401, message: "Session invalid." });
   }
-  await db.delete(userTable).where(eq(userTable.id, row.userId));
+  if (row.user.role === "admin") {
+    throw createError({
+      statusCode: 400,
+      message: "You cannot delete your own account from the admin panel.",
+    });
+  }
+  
+  await db.delete(userTable).where(eq(userTable.id, row.user.id));
+  deleteCookie(event, "session_id");
 
   return {
     success: true,

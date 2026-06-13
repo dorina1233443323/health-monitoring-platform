@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { patientProfileTable, userTable } from "../../db/schema";
+import { patientProfileTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
   const id = Number(getRouterParam(event, "id"));

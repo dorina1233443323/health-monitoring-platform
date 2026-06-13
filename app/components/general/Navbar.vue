@@ -31,10 +31,18 @@ import {
             <NavigationMenuLink as-child>
               <NuxtLink :to="{ name: 'Login' }"
                 class="rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
-                Log in</NuxtLink>
+                Logare </NuxtLink>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink as-child>
+              <NuxtLink :to="{ name: 'Register' }"
+                class="rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                Înregistrare</NuxtLink>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
+
       </NavigationMenu>
     </nav>
   </div>

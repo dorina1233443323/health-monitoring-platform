@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { sessionTable } from "../../db/schema";
+import { sessionTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
