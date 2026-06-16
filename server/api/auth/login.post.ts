@@ -29,7 +29,7 @@ export default eventHandler(async (event) => {
   if (!passwordMatch) {
     throw createError({ statusCode: 401, message: "Invalid credentials." });
   }
-  
+
   const sessionId = randomUUID();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7);

@@ -18,6 +18,14 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "Invalid id." });
   }
 
+  const {
+    birthDate,
+    phone,
+    address,
+    emergencyContactName,
+    emergencyContactPhone,
+  } = await readBody(event);
+
   const db = useDrizzle();
 
   const rows = await db
@@ -37,35 +45,43 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 401, message: "Invalid session." });
   }
 
-  const result = await db
-    .select({
-      id: patientProfileTable.id,
-      birthDate: patientProfileTable.birthDate,
-      phone: patientProfileTable.phone,
-      address: patientProfileTable.address,
-      emergencyContactName: patientProfileTable.emergencyContactName,
-      emergencyContactPhone: patientProfileTable.emergencyContactPhone,
-      userId: userTable.id,
-      firstName: userTable.firstName,
-      lastName: userTable.lastName,
-      email: userTable.email,
-    })
+  const profiles = await db
+    .select()
     .from(patientProfileTable)
-    .innerJoin(userTable, eq(patientProfileTable.userId, userTable.id))
     .where(eq(patientProfileTable.id, id))
     .limit(1);
 
-  const patient = result[0];
+  const patientProfile = profiles[0];
 
-  if (!patient) {
-    throw createError({ statusCode: 404, message: "Patient not found." });
+  if (!patientProfile) {
+    throw createError({
+      statusCode: 404,
+      message: "Patient profile not found.",
+    });
   }
 
-  if (row.user.role !== "admin" && patient.userId !== row.user.id) {
-    throw createError({ statusCode: 403, message: "Access denied." });
+  if (row.user.role !== "admin" && patientProfile.userId !== row.user.id) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied.",
+    });
   }
+
+  const updatedPatients = await db
+    .update(patientProfileTable)
+    .set({
+      birthDate: birthDate ?? patientProfile.birthDate,
+      phone: phone ?? patientProfile.phone,
+      address: address ?? patientProfile.address,
+      emergencyContactName:
+        emergencyContactName ?? patientProfile.emergencyContactName,
+      emergencyContactPhone:
+        emergencyContactPhone ?? patientProfile.emergencyContactPhone,
+    })
+    .where(eq(patientProfileTable.id, id))
+    .returning();
 
   return {
-    patient,
+    patient: updatedPatients[0],
   };
 });

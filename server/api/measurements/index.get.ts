@@ -1,4 +1,9 @@
-import { userTable, sessionTable } from "~~/server/db/schema";
+import {
+  userTable,
+  sessionTable,
+  measurementsTable,
+  patientProfileTable,
+} from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export default eventHandler(async (event) => {
@@ -24,11 +29,26 @@ export default eventHandler(async (event) => {
   }
 
   const user = row.user;
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role,
-  };
+
+  const profiles = await db
+    .select()
+    .from(patientProfileTable)
+    .where(eq(patientProfileTable.userId, user.id))
+    .limit(1);
+
+  const patientProfile = profiles[0];
+
+  if (!patientProfile) {
+    throw createError({
+      statusCode: 404,
+      message: "Patient profile not found.",
+    });
+  }
+
+  const measurements = await db
+    .select()
+    .from(measurementsTable)
+    .where(eq(measurementsTable.patientId, patientProfile.id));
+
+  return measurements;
 });

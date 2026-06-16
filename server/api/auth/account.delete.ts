@@ -28,7 +28,7 @@ export default eventHandler(async (event) => {
       message: "You cannot delete your own account from the admin panel.",
     });
   }
-  
+
   await db.delete(userTable).where(eq(userTable.id, row.user.id));
   deleteCookie(event, "session_id");
 

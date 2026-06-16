@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import {
+  measurementsTable,
   patientProfileTable,
   sessionTable,
   userTable,
@@ -37,35 +38,44 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 401, message: "Invalid session." });
   }
 
-  const result = await db
-    .select({
-      id: patientProfileTable.id,
-      birthDate: patientProfileTable.birthDate,
-      phone: patientProfileTable.phone,
-      address: patientProfileTable.address,
-      emergencyContactName: patientProfileTable.emergencyContactName,
-      emergencyContactPhone: patientProfileTable.emergencyContactPhone,
-      userId: userTable.id,
-      firstName: userTable.firstName,
-      lastName: userTable.lastName,
-      email: userTable.email,
-    })
+  const profiles = await db
+    .select()
     .from(patientProfileTable)
-    .innerJoin(userTable, eq(patientProfileTable.userId, userTable.id))
-    .where(eq(patientProfileTable.id, id))
+    .where(eq(patientProfileTable.userId, row.user.id))
     .limit(1);
 
-  const patient = result[0];
+  const patientProfile = profiles[0];
 
-  if (!patient) {
-    throw createError({ statusCode: 404, message: "Patient not found." });
+  if (!patientProfile) {
+    throw createError({
+      statusCode: 404,
+      message: "Patient profile not found.",
+    });
   }
 
-  if (row.user.role !== "admin" && patient.userId !== row.user.id) {
-    throw createError({ statusCode: 403, message: "Access denied." });
+  const measurements = await db
+    .select()
+    .from(measurementsTable)
+    .where(eq(measurementsTable.id, id))
+    .limit(1);
+
+  const measurement = measurements[0];
+
+  if (!measurement) {
+    throw createError({
+      statusCode: 404,
+      message: "Measurement not found.",
+    });
+  }
+
+  if (measurement.patientId !== patientProfile.id) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied.",
+    });
   }
 
   return {
-    patient,
+    measurement: measurement,
   };
 });
