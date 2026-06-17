@@ -22,12 +22,12 @@ export default eventHandler(async (event) => {
 
   const user = users[0];
   if (!user) {
-    throw createError({ statusCode: 401, message: "Invalid credentials." });
+    throw createError({ statusCode: 401, message: "Credențiale invalide." });
   }
 
-  const passwordMatch = compare(password, user.password);
+  const passwordMatch = await compare(password, user.password);
   if (!passwordMatch) {
-    throw createError({ statusCode: 401, message: "Invalid credentials." });
+    throw createError({ statusCode: 401, message: "Credențiale invalide." });
   }
 
   const sessionId = randomUUID();
@@ -51,6 +51,8 @@ export default eventHandler(async (event) => {
     user: {
       id: user.id,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.role,
     },
   };

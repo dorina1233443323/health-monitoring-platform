@@ -3,16 +3,25 @@ import { sessionTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
+
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat..",
+    });
   }
 
   const id = Number(getRouterParam(event, "id"));
-  if (isNaN(id)) {
-    throw createError({ statusCode: 400, message: "Invalid id." });
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: "Id invalid.",
+    });
   }
 
   const db = useDrizzle();
+
   const rows = await db
     .select({
       user: userTable,
@@ -24,19 +33,41 @@ export default eventHandler(async (event) => {
     .limit(1);
 
   const row = rows[0];
+
   if (!row) {
     deleteCookie(event, "session_id");
-    throw createError({ statusCode: 401, message: "Invalid session" });
+    throw createError({
+      statusCode: 401,
+      message: "Sesiune invalidă.",
+    });
   }
+
   const user = row.user;
 
   if (user.role !== "admin") {
-    throw createError({ statusCode: 403, message: "Access denied." });
+    throw createError({
+      statusCode: 403,
+      message: "Access denied.",
+    });
   }
+
   if (user.id === id) {
     throw createError({
       statusCode: 400,
-      message: "You cannot delete your own account from the admin panel.",
+      message: "Nu îti poți șterge contul de administrator.",
+    });
+  }
+
+  const targetUser = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, id))
+    .limit(1);
+
+  if (!targetUser[0]) {
+    throw createError({
+      statusCode: 404,
+      message: "User not found.",
     });
   }
 

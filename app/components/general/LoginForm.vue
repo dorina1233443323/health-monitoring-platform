@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+import { Alert, AlertTitle, AlertDescription} from "@/components/ui/alert"
 import {
   Card,
   CardContent,
@@ -15,6 +17,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AlertCircleIcon } from "@lucide/vue";
 
 interface FormData {
   email: string,
@@ -123,7 +126,7 @@ function submitForm() {
         </Card>
         <div v-if="error">
           <Alert variant="destructive">
-            <AlertCircleIcon />
+            <AlertCircleIcon/>
             <AlertTitle>Error!</AlertTitle>
             <AlertDescription>
               <p>{{ error }}</p>

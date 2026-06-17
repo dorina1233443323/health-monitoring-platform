@@ -9,7 +9,10 @@ import { eq } from "drizzle-orm";
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
   const { type, targetValue, unit, startDate, endDate, status } =
     await readBody(event);
@@ -64,7 +67,7 @@ export default eventHandler(async (event) => {
   if (!patientProfile) {
     throw createError({
       statusCode: 404,
-      message: "Patient profile not found.",
+      message: "Profilul pacientului nu a fost găsit.",
     });
   }
 

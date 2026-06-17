@@ -1,34 +1,55 @@
-import { userTable, sessionTable } from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { sessionTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
+
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
+
   const db = useDrizzle();
-  const result = await db
+
+  const rows = await db
     .select({
       user: userTable,
-      session: sessionTable,
     })
     .from(sessionTable)
     .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
     .where(eq(sessionTable.id, sessionId))
     .limit(1);
 
-  const row = result[0];
+  const row = rows[0];
 
   if (!row) {
-    throw createError({ statusCode: 401, message: "Invalid session" });
+    deleteCookie(event, "session_id");
+
+    throw createError({
+      statusCode: 401,
+      message: "Sesiune invalidă.",
+    });
   }
 
-  const user = row.user;
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role,
-  };
+  if (row.user.role !== "admin") {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied.",
+    });
+  }
+
+  const users = await db
+    .select({
+      id: userTable.id,
+      email: userTable.email,
+      firstName: userTable.firstName,
+      lastName: userTable.lastName,
+      role: userTable.role,
+      createdAt: userTable.createdAt,
+    })
+    .from(userTable);
+
+  return users;
 });

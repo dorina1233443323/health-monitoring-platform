@@ -9,7 +9,10 @@ import { eq } from "drizzle-orm";
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
   const db = useDrizzle();
   const result = await db
@@ -25,7 +28,7 @@ export default eventHandler(async (event) => {
   const row = result[0];
 
   if (!row) {
-    throw createError({ statusCode: 401, message: "Invalid session" });
+    throw createError({ statusCode: 401, message: "Sesiune invalidă" });
   }
 
   const user = row.user;
@@ -41,7 +44,7 @@ export default eventHandler(async (event) => {
   if (!patientProfile) {
     throw createError({
       statusCode: 404,
-      message: "Patient profile not found.",
+      message: "Profilul pacientului nu a fost găsit.",
     });
   }
 
@@ -50,5 +53,5 @@ export default eventHandler(async (event) => {
     .from(healthGoalsTable)
     .where(eq(healthGoalsTable.patientId, patientProfile.id));
 
-  return healthGoals;;
+  return healthGoals;
 });

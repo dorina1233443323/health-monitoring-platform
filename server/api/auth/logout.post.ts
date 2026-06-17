@@ -11,5 +11,5 @@ export default eventHandler(async (event) => {
 
   deleteCookie(event, "session_id");
 
-  return { success: true };
+  return { success: true, message: "Ieșire cu succes." };
 });

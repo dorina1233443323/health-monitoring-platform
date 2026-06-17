@@ -10,13 +10,16 @@ export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
 
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
 
   const id = Number(getRouterParam(event, "id"));
 
   if (isNaN(id)) {
-    throw createError({ statusCode: 400, message: "Invalid id." });
+    throw createError({ statusCode: 400, message: "Id invalid." });
   }
 
   const db = useDrizzle();
@@ -35,7 +38,7 @@ export default eventHandler(async (event) => {
 
   if (!row || new Date(row.session.expiresAt) < new Date()) {
     deleteCookie(event, "session_id");
-    throw createError({ statusCode: 401, message: "Invalid session." });
+    throw createError({ statusCode: 401, message: "Sesiune invalidă." });
   }
 
   const profiles = await db
@@ -49,7 +52,7 @@ export default eventHandler(async (event) => {
   if (!patientProfile) {
     throw createError({
       statusCode: 404,
-      message: "Patient profile not found.",
+      message: "Profilul pacientuluui nu a fost găsit.",
     });
   }
 
@@ -64,14 +67,14 @@ export default eventHandler(async (event) => {
   if (!goal) {
     throw createError({
       statusCode: 404,
-      message: "Goal not found.",
+      message: "Scopul nu a fost găsit.",
     });
   }
 
   if (goal.patientId !== patientProfile.id) {
     throw createError({
       statusCode: 403,
-      message: "Access denied.",
+      message: "Access interzis.",
     });
   }
 
@@ -79,6 +82,6 @@ export default eventHandler(async (event) => {
 
   return {
     success: true,
-    message: "Goal deleted successfully.",
+    message: "Scop șters cu succes.",
   };
 });

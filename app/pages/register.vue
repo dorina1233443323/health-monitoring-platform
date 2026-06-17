@@ -33,13 +33,9 @@ async function submitForm(data: FormData) {
 </script>
 
 <template>
-    <div class="flex items-center justify-center bg-neutral-950">
-        <div class="w-full max-w-lg">
-            <RegisterForm 
-            :loading="loading"
-            :error="error"
-            @submit="submitForm"
-            />
-        </div>
+  <div class="flex items-center justify-center bg-neutral-950">
+    <div class="w-full max-w-lg">
+      <RegisterForm :loading="loading" :error="error" @submit="submitForm" />
     </div>
+  </div>
 </template>

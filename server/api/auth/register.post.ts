@@ -1,4 +1,5 @@
 import { hash } from "bcrypt-ts";
+import { eq } from "drizzle-orm";
 import { patientProfileTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
@@ -13,6 +14,26 @@ export default eventHandler(async (event) => {
   const hashedPassword = await hash(password, 8);
   const now = new Date().toISOString();
   const db = useDrizzle();
+
+  const existingUser = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.email, email))
+    .limit(1);
+
+  if (existingUser[0]) {
+    throw createError({
+      statusCode: 409,
+      message: "Email already exists.",
+    });
+  }
+
+  if (password.length < 8) {
+    throw createError({
+      statusCode: 400,
+      message: "Parola trebuie să conțină 8 sau mai multe caractere.",
+    });
+  }
 
   const insertResult = await db
     .insert(userTable)
@@ -32,7 +53,7 @@ export default eventHandler(async (event) => {
   if (!user) {
     throw createError({
       statusCode: 500,
-      message: "User could not be created.",
+      message: "Utilizatorul nu a putut fi creat.",
     });
   }
 

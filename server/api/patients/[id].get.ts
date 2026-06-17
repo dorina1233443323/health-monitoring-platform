@@ -9,13 +9,16 @@ export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
 
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
 
   const id = Number(getRouterParam(event, "id"));
 
   if (isNaN(id)) {
-    throw createError({ statusCode: 400, message: "Invalid id." });
+    throw createError({ statusCode: 400, message: "Id invalid." });
   }
 
   const db = useDrizzle();
@@ -34,7 +37,7 @@ export default eventHandler(async (event) => {
 
   if (!row || new Date(row.session.expiresAt) < new Date()) {
     deleteCookie(event, "session_id");
-    throw createError({ statusCode: 401, message: "Invalid session." });
+    throw createError({ statusCode: 401, message: "Sesiune invalidă." });
   }
 
   const result = await db

@@ -10,13 +10,16 @@ export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
 
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat.",
+    });
   }
 
   const id = Number(getRouterParam(event, "id"));
 
   if (isNaN(id)) {
-    throw createError({ statusCode: 400, message: "Invalid id." });
+    throw createError({ statusCode: 400, message: "Id invalid." });
   }
 
   const { type, targetValue, unit, startDate, endDate, status } =
@@ -38,7 +41,7 @@ export default eventHandler(async (event) => {
 
   if (!row || new Date(row.session.expiresAt) < new Date()) {
     deleteCookie(event, "session_id");
-    throw createError({ statusCode: 401, message: "Invalid session." });
+    throw createError({ statusCode: 401, message: "Sesiune invalidă." });
   }
 
   const profiles = await db
@@ -52,7 +55,7 @@ export default eventHandler(async (event) => {
   if (!patientProfile) {
     throw createError({
       statusCode: 404,
-      message: "Patient profile not found.",
+      message: "Profilul pacientului nu a fost găsit.",
     });
   }
 
@@ -67,7 +70,7 @@ export default eventHandler(async (event) => {
   if (!goal) {
     throw createError({
       statusCode: 404,
-      message: "Measurement not found.",
+      message: "Măsura nu a fost găsită.",
     });
   }
 
@@ -82,11 +85,12 @@ export default eventHandler(async (event) => {
     .update(healthGoalsTable)
     .set({
       type: type ?? goal.type,
-      targetValue: targetValue !== undefined ? Number(targetValue) : goal.targetValue,
+      targetValue:
+        targetValue !== undefined ? Number(targetValue) : goal.targetValue,
       unit: unit ?? goal.unit,
       startDate: startDate ?? goal.startDate,
       endDate: endDate ?? goal.endDate,
-      status: status ?? goal.status
+      status: status ?? goal.status,
     })
     .where(eq(healthGoalsTable.id, id))
     .returning();

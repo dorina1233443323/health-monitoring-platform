@@ -1,12 +1,18 @@
-import { userTable, sessionTable } from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
+import { sessionTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
+
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({
+      statusCode: 401,
+      message: "Utilizator neautentificat..",
+    });
   }
+
   const db = useDrizzle();
+
   const rows = await db
     .select({
       session: sessionTable,
@@ -18,22 +24,29 @@ export default eventHandler(async (event) => {
     .limit(1);
 
   const row = rows[0];
+
   if (!row) {
     deleteCookie(event, "session_id");
-    throw createError({ statusCode: 401, message: "Session invalid." });
+
+    throw createError({
+      statusCode: 401,
+      message: "Session invalid.",
+    });
   }
+
   if (row.user.role === "admin") {
     throw createError({
-      statusCode: 400,
-      message: "You cannot delete your own account from the admin panel.",
+      statusCode: 403,
+      message: "Admin accounts cannot be deleted from this endpoint.",
     });
   }
 
   await db.delete(userTable).where(eq(userTable.id, row.user.id));
+
   deleteCookie(event, "session_id");
 
   return {
     success: true,
-    message: "Account deleted successfully.",
+    message: "Cont șters cu succes.",
   };
 });

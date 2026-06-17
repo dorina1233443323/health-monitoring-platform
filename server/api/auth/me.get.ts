@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 export default eventHandler(async (event) => {
   const sessionId = getCookie(event, "session_id");
   if (!sessionId) {
-    throw createError({ statusCode: 401, message: "User not authenticated" });
+    throw createError({ statusCode: 401, message: "Utilizator neautentificat." });
   }
 
   const db = useDrizzle();

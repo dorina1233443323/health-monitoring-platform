@@ -8,7 +8,7 @@ interface FormData {
     email: string
     password: string
 }
-
+const { fetchUser, user } = useAuth()
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -21,7 +21,8 @@ async function submitForm(data: FormData) {
             method: 'POST',
             body: data,
         })
-        await navigateTo({ name: 'Dashboard' })
+        await fetchUser()
+        await navigateTo({ name: 'Home' })
     } catch (err: any) {
         error.value =
             err?.data?.message ??
