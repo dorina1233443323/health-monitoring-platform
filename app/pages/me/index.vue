@@ -43,7 +43,8 @@ const { data: profile, pending } = await useFetch('/api/me/patient-profile')
 
                 <div class="mt-4 space-y-2 text-neutral-300">
                     <p>Data nașterii: {{ profile.birthDate }}</p>
-                    <p>Sex: {{ profile.sex }}</p>
+                    <p>Sex: {{ profile.sex === 'female' ? 'Feminin' : profile.sex === 'male' ? 'Masculin' : 'Altul' }}
+                    </p>
                     <p>Înălțime: {{ profile.heightCm ?? '-' }} cm</p>
                     <p>Greutate: {{ profile.weightKg ?? '-' }} kg</p>
                     <p>Telefon: {{ profile.phone }}</p>

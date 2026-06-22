@@ -2,6 +2,7 @@
 import { cn } from '@/lib/utils'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
+import { watch } from 'vue'
 
 import {
     Card,
@@ -53,18 +54,21 @@ const schema = toTypedSchema(
         sex: z.enum(['male', 'female', 'other'], {
             message: 'Sexul este obligatoriu',
         }),
-        heightCm: z
-            .number()
+        heightCm: z.coerce
+            .string()
+            .trim()
+            .regex(/^\d*\.?\d*$/, 'Înălțimea trebuie să fie un număr.')
             .optional(),
-        weightKg: z
-
-            .number()
+        weightKg: z.coerce
+            .string()
+            .trim()
+            .regex(/^\d*\.?\d*$/, 'Greutatea trebuie să fie un număr.')
             .optional(),
         phone: z.string().trim().min(1, 'Telefonul este obligatoriu'),
         address: z.string().optional(),
         emergencyContactName: z.string().optional(),
         emergencyContactPhone: z.string().optional(),
-    })
+    }),
 )
 
 const {
@@ -76,14 +80,14 @@ const {
 } = useForm<PatientProfileFormValues>({
     validationSchema: schema,
     initialValues: {
-        birthDate: initialFormData?.birthDate ?? '',
-        sex: initialFormData?.sex ?? '',
-        heightCm: initialFormData?.heightCm?.toString() ?? '',
-        weightKg: initialFormData?.weightKg?.toString() ?? '',
-        phone: initialFormData?.phone ?? '',
-        address: initialFormData?.address ?? '',
-        emergencyContactName: initialFormData?.emergencyContactName ?? '',
-        emergencyContactPhone: initialFormData?.emergencyContactPhone ?? '',
+        birthDate: '',
+        sex: '',
+        heightCm: '',
+        weightKg: '',
+        phone: '',
+        address: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
     },
 })
 
@@ -95,6 +99,28 @@ const [phone] = defineField('phone')
 const [address] = defineField('address')
 const [emergencyContactName] = defineField('emergencyContactName')
 const [emergencyContactPhone] = defineField('emergencyContactPhone')
+
+watch(
+    () => initialFormData,
+    (data) => {
+        if (!data) return
+
+        setValues(
+            {
+                birthDate: data.birthDate ?? '',
+                sex: data.sex ?? '',
+                heightCm: data.heightCm?.toString() ?? '',
+                weightKg: data.weightKg?.toString() ?? '',
+                phone: data.phone ?? '',
+                address: data.address ?? '',
+                emergencyContactName: data.emergencyContactName ?? '',
+                emergencyContactPhone: data.emergencyContactPhone ?? '',
+            },
+            false,
+        )
+    },
+    { immediate: true },
+)
 
 const submitForm = handleSubmit((values) => {
     emit('submit', {
@@ -112,16 +138,19 @@ const submitForm = handleSubmit((values) => {
 function resetForm() {
     handleReset()
 
-    setValues({
-        birthDate: initialFormData?.birthDate ?? '',
-        sex: initialFormData?.sex ?? '',
-        heightCm: initialFormData?.heightCm?.toString() ?? '',
-        weightKg: initialFormData?.weightKg?.toString() ?? '',
-        phone: initialFormData?.phone ?? '',
-        address: initialFormData?.address ?? '',
-        emergencyContactName: initialFormData?.emergencyContactName ?? '',
-        emergencyContactPhone: initialFormData?.emergencyContactPhone ?? '',
-    })
+    setValues(
+        {
+            birthDate: initialFormData?.birthDate ?? '',
+            sex: initialFormData?.sex ?? '',
+            heightCm: initialFormData?.heightCm?.toString() ?? '',
+            weightKg: initialFormData?.weightKg?.toString() ?? '',
+            phone: initialFormData?.phone ?? '',
+            address: initialFormData?.address ?? '',
+            emergencyContactName: initialFormData?.emergencyContactName ?? '',
+            emergencyContactPhone: initialFormData?.emergencyContactPhone ?? '',
+        },
+        false,
+    )
 }
 
 defineExpose({
@@ -152,18 +181,19 @@ defineExpose({
                         <form @submit.prevent="submitForm">
                             <FieldGroup>
                                 <Field>
-                                    <FieldLabel>Data nașterii *</FieldLabel>
-                                    <Input v-model="birthDate" type="date" />
+                                    <FieldLabel class="text-white">Data nașterii *</FieldLabel>
+                                    <Input v-model="birthDate" type="date"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                     <p v-if="errors.birthDate" class="text-sm text-red-500">
                                         {{ errors.birthDate }}
                                     </p>
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Sex *</FieldLabel>
+                                    <FieldLabel class="text-white">Sex *</FieldLabel>
 
                                     <select v-model="sex"
-                                        class="w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2">
+                                        class="w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-white">
                                         <option value="">Selectați</option>
                                         <option value="male">Masculin</option>
                                         <option value="female">Feminin</option>
@@ -176,48 +206,54 @@ defineExpose({
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Înălțime (cm)</FieldLabel>
-                                    <Input v-model="heightCm" type="number" />
+                                    <FieldLabel class="text-white">Înălțime (cm)</FieldLabel>
+                                    <Input v-model="heightCm" type="number"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                     <p v-if="errors.heightCm" class="text-sm text-red-500">
                                         {{ errors.heightCm }}
                                     </p>
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Greutate (kg)</FieldLabel>
-                                    <Input v-model="weightKg" type="number" />
+                                    <FieldLabel class="text-white">Greutate (kg)</FieldLabel>
+                                    <Input v-model="weightKg" type="number"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                     <p v-if="errors.weightKg" class="text-sm text-red-500">
                                         {{ errors.weightKg }}
                                     </p>
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Telefon *</FieldLabel>
-                                    <Input v-model="phone" type="tel" />
+                                    <FieldLabel class="text-white">Telefon *</FieldLabel>
+                                    <Input v-model="phone" type="tel"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                     <p v-if="errors.phone" class="text-sm text-red-500">
                                         {{ errors.phone }}
                                     </p>
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Adresă</FieldLabel>
-                                    <Input v-model="address" type="text" />
+                                    <FieldLabel class="text-white">Adresă</FieldLabel>
+                                    <Input v-model="address" type="text"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Persoană contact urgență</FieldLabel>
-                                    <Input v-model="emergencyContactName" type="text" />
+                                    <FieldLabel class="text-white">Persoană contact urgență</FieldLabel>
+                                    <Input v-model="emergencyContactName" type="text"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                 </Field>
 
                                 <Field>
-                                    <FieldLabel>Telefon contact urgență</FieldLabel>
-                                    <Input v-model="emergencyContactPhone" type="tel" />
+                                    <FieldLabel class="text-white">Telefon contact urgență</FieldLabel>
+                                    <Input v-model="emergencyContactPhone" type="tel"
+                                        class="border-neutral-700 bg-neutral-950 text-white placeholder:text-neutral-500" />
                                 </Field>
 
                                 <Field>
                                     <Button type="submit" :disabled="loading"
                                         class="w-full bg-emerald-500 text-neutral-950 hover:bg-emerald-400">
-                                        Salvează profilul
+                                        {{ loading ? 'Se salvează...' : 'Salvează profilul' }}
                                     </Button>
                                 </Field>
                             </FieldGroup>
