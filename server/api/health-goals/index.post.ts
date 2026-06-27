@@ -14,15 +14,26 @@ export default eventHandler(async (event) => {
       message: "Utilizator neautentificat.",
     });
   }
-  const { type, targetValue, unit, startDate, endDate, status } =
-    await readBody(event);
+  const {
+    type,
+    targetValue,
+    unit,
+    startDate,
+    endDate,
+    status,
+    startValue,
+    direction,
+  } = await readBody(event);
   if (
     !type ||
     targetValue === undefined ||
     !unit ||
     !startDate ||
     !endDate ||
-    !status
+    !status ||
+    startValue === undefined ||
+    startValue === null ||
+    !direction
   ) {
     throw createError({
       statusCode: 400,
@@ -34,6 +45,13 @@ export default eventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       message: "Invalid goal status.",
+    });
+  }
+
+  if (!["increase", "decrease", "maintain"].includes(direction)) {
+    throw createError({
+      statusCode: 400,
+      message: "Invalid goal direction.",
     });
   }
 
@@ -75,12 +93,14 @@ export default eventHandler(async (event) => {
     .insert(healthGoalsTable)
     .values({
       patientId: patientProfile.id,
-      type: type,
+      type,
       targetValue: Number(targetValue),
-      unit: unit,
-      startDate: startDate,
-      endDate: endDate,
-      status: status,
+      startValue: Number(startValue),
+      unit,
+      direction,
+      startDate,
+      endDate,
+      status,
       createdAt: new Date().toISOString(),
     })
     .returning();

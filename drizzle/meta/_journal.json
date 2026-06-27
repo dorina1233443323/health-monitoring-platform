@@ -43,6 +43,13 @@
       "when": 1781370958841,
       "tag": "0005_cultured_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782413896934,
+      "tag": "0006_lumpy_spot",
+      "breakpoints": true
     }
   ]
 }

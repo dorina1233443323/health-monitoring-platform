@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 const loading = ref(false);
 
-async function deleteMeasurement() {
+async function deleteHealthGoal() {
   const confirmed = window.confirm(
     "Sunteți sigur? Această acțiune nu poate fi anulată.",
   );
@@ -24,15 +24,15 @@ async function deleteMeasurement() {
   loading.value = true;
 
   try {
-    await $fetch(`/api/measurements/${id}`, {
+    await $fetch(`/api/health-goals/${id}`, {
       method: "DELETE",
     });
 
-    toast.success("Măsurătura a fost ștearsă cu succes.");
+    toast.success("Obiectivul a fost șters cu succes.");
     emit("delete");
   } catch (error) {
     console.error(error);
-    toast.error("A apărut o eroare la ștergerea măsurăturii.");
+    toast.error("A apărut o eroare la ștergerea obiectivului.");
   } finally {
     loading.value = false;
   }
@@ -40,7 +40,7 @@ async function deleteMeasurement() {
 </script>
 
 <template>
-  <Button variant="destructive" :disabled="loading" @click="deleteMeasurement">
+  <Button variant="destructive" :disabled="loading" @click="deleteHealthGoal">
     {{ loading ? "Se șterge..." : "Șterge" }}
   </Button>
 </template>

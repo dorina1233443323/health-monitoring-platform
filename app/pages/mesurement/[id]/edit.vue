@@ -1,75 +1,95 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue'
-import { useRoute } from 'vue-router'
-import { toast } from 'vue-sonner'
+import { computed, useTemplateRef } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { toast } from "vue-sonner";
 
-import MeasurementForm from '~/components/measurements/MeasurementForm.vue'
+import MeasurementForm from "~/components/measurements/MeasurementForm.vue";
 
 definePageMeta({
-    name: 'EditMeasurement',
-})
+  name: "EditMeasurement",
+});
 
 interface MeasurementFormData {
-    type: string
-    value: number
-    unit: string
-    measuredAt: string
+  type: string;
+  value: number;
+  unit: string;
+  measuredAt: string;
 }
 
-const route = useRoute()
-const id = route.params.id
+interface MeasurementResponse {
+  measurement: MeasurementFormData;
+}
 
-const mutationLoading = ref(false)
-const mutationError = ref<string | null>(null)
+const route = useRoute();
+const router = useRouter();
+const id = route.params.id;
+
+const mutationLoading = ref(false);
+const mutationError = ref<string | null>(null);
 
 const {
-    data: measurement,
-    pending: queryLoading,
-    error: queryError,
-    refresh,
-} = await useFetch<MeasurementFormData | null>(`/api/measurements/${id}`)
+  data,
+  pending: queryLoading,
+  error: queryError,
+  refresh,
+} = await useFetch<MeasurementResponse>(`/api/measurements/${id}`);
 
-const formData = computed(() => ({
-    type: measurement.value?.type ?? '',
-    value: measurement.value?.value ?? 0,
-    unit: measurement.value?.unit ?? '',
-    measuredAt: measurement.value?.measuredAt ?? '',
-}))
+const formData = computed<MeasurementFormData>(() => ({
+  type: data.value?.measurement.type ?? "",
+  value: data.value?.measurement.value ?? 0,
+  unit: data.value?.measurement.unit ?? "",
+  measuredAt: data.value?.measurement.measuredAt ?? "",
+}));
 
-const measurementForm = useTemplateRef('measurement-form')
+const measurementForm = useTemplateRef("measurement-form");
 
-async function editMeasurement(data: MeasurementFormData) {
-    mutationLoading.value = true
-    mutationError.value = null
+async function editMeasurement(formData: MeasurementFormData) {
+  mutationLoading.value = true;
+  mutationError.value = null;
 
-    try {
-        await $fetch(`/api/measurements/${id}`, {
-            method: 'PATCH',
-            body: data,
-        })
+  try {
+    await $fetch(`/api/measurements/${id}`, {
+      method: "PATCH",
+      body: formData,
+    });
 
-        await refresh()
-        measurementForm.value?.resetForm()
+    await refresh();
 
-        toast.success('Măsurătoarea a fost editată cu succes.')
-    } catch {
-        mutationError.value = 'Măsurătoarea nu a putut fi editată.'
-        toast.error('A apărut o eroare la editarea măsurătorii.')
-    } finally {
-        mutationLoading.value = false
-    }
+    toast.success("Măsurătoarea a fost editată cu succes.");
+
+    await router.push({
+      name: "ViewMeasurement",
+      params: { id },
+    });
+  } catch {
+    mutationError.value = "Măsurătoarea nu a putut fi editată.";
+    toast.error("A apărut o eroare la editarea măsurătorii.");
+  } finally {
+    mutationLoading.value = false;
+  }
 }
 </script>
 
 <template>
-    <MeasurementForm ref="measurement-form" :loading="mutationLoading || queryLoading"
-        :error="mutationError || queryError?.message" :initial-form-data="formData" @submit="editMeasurement">
-        <template #title>
-            Editează măsurătoare
-        </template>
+  <MeasurementForm
+    v-if="!queryLoading && data?.measurement"
+    ref="measurement-form"
+    :loading="mutationLoading || queryLoading"
+    :error="mutationError || queryError?.message"
+    :initial-form-data="formData"
+    @submit="editMeasurement"
+  >
+    <template #title> Editează măsurătoare </template>
 
-        <template #buttonName>
-            {{ mutationLoading ? 'Se editează...' : 'Editează' }}
-        </template>
-    </MeasurementForm>
+    <template #buttonName>
+      {{ mutationLoading ? "Se editează..." : "Editează" }}
+    </template>
+  </MeasurementForm>
+
+  <main
+    v-else
+    class="flex min-h-dvh items-center justify-center bg-neutral-950 text-white"
+  >
+    <p class="text-neutral-400">Se încarcă...</p>
+  </main>
 </template>

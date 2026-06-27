@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { sessionTable, userTable } from "~~/server/db/schema";
 
 export default eventHandler(async (event) => {
@@ -15,6 +15,7 @@ export default eventHandler(async (event) => {
 
   const rows = await db
     .select({
+      session: sessionTable,
       user: userTable,
     })
     .from(sessionTable)
@@ -24,9 +25,8 @@ export default eventHandler(async (event) => {
 
   const row = rows[0];
 
-  if (!row) {
+  if (!row || new Date(row.session.expiresAt) < new Date()) {
     deleteCookie(event, "session_id");
-
     throw createError({
       statusCode: 401,
       message: "Sesiune invalidă.",
@@ -36,7 +36,7 @@ export default eventHandler(async (event) => {
   if (row.user.role !== "admin") {
     throw createError({
       statusCode: 403,
-      message: "Access denied.",
+      message: "Acces interzis.",
     });
   }
 
@@ -49,7 +49,8 @@ export default eventHandler(async (event) => {
       role: userTable.role,
       createdAt: userTable.createdAt,
     })
-    .from(userTable);
+    .from(userTable)
+    .orderBy(desc(userTable.createdAt));
 
   return users;
 });

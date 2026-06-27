@@ -22,8 +22,16 @@ export default eventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "Id invalid." });
   }
 
-  const { type, targetValue, unit, startDate, endDate, status } =
-    await readBody(event);
+  const {
+    type,
+    targetValue,
+    unit,
+    startDate,
+    endDate,
+    status,
+    startValue,
+    direction,
+  } = await readBody(event);
 
   const db = useDrizzle();
 
@@ -85,9 +93,21 @@ export default eventHandler(async (event) => {
     .update(healthGoalsTable)
     .set({
       type: type ?? goal.type,
+
       targetValue:
-        targetValue !== undefined ? Number(targetValue) : goal.targetValue,
+        targetValue !== undefined && targetValue !== null
+          ? Number(targetValue)
+          : goal.targetValue,
+
+      startValue:
+        startValue !== undefined && startValue !== null
+          ? Number(startValue)
+          : goal.startValue,
+
       unit: unit ?? goal.unit,
+
+      direction: direction ?? goal.direction,
+
       startDate: startDate ?? goal.startDate,
       endDate: endDate ?? goal.endDate,
       status: status ?? goal.status,
@@ -96,6 +116,6 @@ export default eventHandler(async (event) => {
     .returning();
 
   return {
-    measurement: updatedGoal[0],
+    goal: updatedGoal[0],
   };
 });
