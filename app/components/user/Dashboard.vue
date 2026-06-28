@@ -58,7 +58,7 @@ function normalize(value: string | null | undefined) {
 }
 
 function clampProgress(value: number) {
-  if (!Number.isFinite(value)) return 0;
+  if (!Number.isFinite(value)) return 0; //numar aedvarat, nu NAN infinity etc
   return Math.min(Math.max(Math.round(value), 0), 100);
 }
 
@@ -68,7 +68,7 @@ function getDaysUntil(date: string | null) {
   const today = new Date();
   const end = new Date(date);
 
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);//set orei la miezul noptii timp local
   end.setHours(0, 0, 0, 0);
 
   return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -76,18 +76,15 @@ function getDaysUntil(date: string | null) {
 
 function getDeadlineText(date: string | null) {
   const days = getDaysUntil(date);
-
   if (days === null) return "Fără termen limită";
   if (days < 0) return `Depășit cu ${Math.abs(days)} zile`;
   if (days === 0) return "Termenul este astăzi";
   if (days === 1) return "1 zi rămasă";
-
   return `${days} zile rămase`;
 }
 
 const bmi = computed(() => {
   if (!profile.value?.heightCm || !profile.value?.weightKg) return null;
-
   const heightM = profile.value.heightCm / 100;
   return Number((profile.value.weightKg / (heightM * heightM)).toFixed(1));
 });
@@ -97,17 +94,14 @@ const bmiStatus = computed(() => {
   if (bmi.value < 18.5) return "Subponderal";
   if (bmi.value < 25) return "Normal";
   if (bmi.value < 30) return "Supraponderal";
-
   return "Obezitate";
 });
 
 const latestMeasurements = computed(() => {
   const grouped = new Map<string, Measurement>();
-
   for (const measurement of measurements.value ?? []) {
     const key = `${normalize(measurement.type)}:${normalize(measurement.unit)}`;
     const existing = grouped.get(key);
-
     if (
       !existing ||
       new Date(measurement.measuredAt).getTime() >
@@ -116,7 +110,6 @@ const latestMeasurements = computed(() => {
       grouped.set(key, measurement);
     }
   }
-
   return Array.from(grouped.values()).sort(
     (a, b) =>
       new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
@@ -175,7 +168,7 @@ const goalProgress = computed(() => {
       rawProgress = ((start - current) / (start - target)) * 100;
     }
     if (goal.direction === "maintain") {
-      const tolerance = Math.abs(target * 0.05);
+      const tolerance = Math.abs(target * 0.05);//cat se abate de la initial
       const difference = Math.abs(current - target);
       rawProgress = difference <= tolerance ? 100 : 0;
     }

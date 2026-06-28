@@ -35,9 +35,8 @@ const features = [
 
 <template>
   <div v-if="!mounted" class="min-h-screen bg-neutral-950" />
-
   <template v-else>
     <LandingPage v-if="!loggedIn" :features="features" />
-    <Dashboard v-else :user="user" :is-admin="isAdmin" />
+    <Dashboard v-else :user="user" :isAdmin="isAdmin" />
   </template>
 </template>

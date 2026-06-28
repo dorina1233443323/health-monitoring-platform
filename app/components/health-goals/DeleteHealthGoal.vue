@@ -27,7 +27,6 @@ async function deleteHealthGoal() {
     await $fetch(`/api/health-goals/${id}`, {
       method: "DELETE",
     });
-
     toast.success("Obiectivul a fost șters cu succes.");
     emit("delete");
   } catch (error) {

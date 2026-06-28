@@ -49,18 +49,14 @@ export const healthGoalsTable = sqliteTable("health_goals", {
   targetValue: real("target_value"),
   startValue: real("start_value"),
   unit: text("unit"),
-
   direction: text("direction", {
     enum: ["increase", "decrease", "maintain"],
   }).notNull(),
-
   startDate: text("start_date"),
   endDate: text("end_date"),
-
   status: text("status", {
     enum: ["active", "completed", "cancelled"],
   }).notNull(),
-
   createdAt: text("created_at").notNull(),
 });
 

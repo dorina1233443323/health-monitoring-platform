@@ -137,7 +137,6 @@ const submitForm = handleSubmit((values) => {
 
 function resetForm() {
     handleReset()
-
     setValues(
         {
             birthDate: initialFormData?.birthDate ?? '',

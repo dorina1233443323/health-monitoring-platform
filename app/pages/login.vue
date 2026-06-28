@@ -15,7 +15,6 @@ const error = ref<string | null>(null)
 async function submitForm(data: FormData) {
     loading.value = true
     error.value = null
-
     try {
         await $fetch('/api/auth/login', {
             method: 'POST',
