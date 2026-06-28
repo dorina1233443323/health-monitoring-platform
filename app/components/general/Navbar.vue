@@ -54,8 +54,10 @@ const { user, loggedIn, logout } = useAuth()
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <span class="px-4 py-2 text-sm text-muted-foreground">
-                {{ user?.firstName }}
+              <span>
+                <NuxtLink :to="{ name: 'PatientProfile' }">
+                  {{ user?.firstName }}
+                </NuxtLink>
               </span>
             </NavigationMenuItem>
             <NavigationMenuItem>

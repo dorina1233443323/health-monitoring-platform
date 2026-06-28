@@ -56,11 +56,6 @@ async function editMeasurement(formData: MeasurementFormData) {
     await refresh();
 
     toast.success("Măsurătoarea a fost editată cu succes.");
-
-    await router.push({
-      name: "ViewMeasurement",
-      params: { id },
-    });
   } catch {
     mutationError.value = "Măsurătoarea nu a putut fi editată.";
     toast.error("A apărut o eroare la editarea măsurătorii.");

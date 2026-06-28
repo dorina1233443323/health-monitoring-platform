@@ -65,10 +65,6 @@ async function editHealthGoal(formData: HealthGoalFormData) {
 
     toast.success("Obiectivul a fost editat cu succes.");
 
-    await router.push({
-      name: "ViewHealthGoal",
-      params: { id },
-    });
   } catch {
     mutationError.value = "Obiectivul nu a putut fi editat.";
     toast.error("A apărut o eroare la editarea obiectivului.");

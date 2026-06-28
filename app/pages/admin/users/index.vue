@@ -13,6 +13,7 @@ import {
 
 definePageMeta({
   name: "AdminUsers",
+  middleware: ["admin-only"],
 });
 
 interface User {

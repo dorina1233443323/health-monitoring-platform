@@ -128,15 +128,7 @@ const directionLabels = {
               class="border-b border-neutral-700/60 transition-colors hover:bg-zinc-900/30"
             >
               <TableCell class="p-4 text-sm font-medium">
-                <RouterLink
-                  :to="{
-                    name: 'ViewHealthGoal',
-                    params: { id: goal.id },
-                  }"
-                  class="hover:text-emerald-400 hover:underline"
-                >
                   {{ goal.type }}
-                </RouterLink>
               </TableCell>
 
               <TableCell class="p-4 text-center text-sm">
